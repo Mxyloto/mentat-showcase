@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Mentat Quant: 从实验到复盘的 AI-Native 量化研究系统项目说明。"
+    />
+    <title>Mentat Quant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,620&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="side-rail" aria-label="页面大纲">
+        <a class="brand" href="#top">
+          <span class="brand-mark">Mentat</span>
+        </a>
+
+        <nav class="outline-nav">
+          <a href="#overview"><span>00</span>概览</a>
+          <div class="outline-group-label">01 策略研究系统架构</div>
+          <a href="#data-state"><span>1.1</span>数据与状态</a>
+          <a href="#strategy-build"><span>1.2</span>策略构建</a>
+          <a href="#experiment-flow"><span>1.3</span>实验组织</a>
+          <a href="#runtime"><span>1.4</span>回测执行</a>
+          <a href="#artifacts"><span>1.5</span>结果产物</a>
+          <a href="#diagnostics"><span>1.6</span>分析诊断</a>
+          <a class="outline-separated" href="#harness"><span>02</span>Agent Harness</a>
+          <a href="#dashboard"><span>03</span>研究界面与看板</a>
+          <a href="#strategy"><span>04</span>策略成果</a>
+        </nav>
+
+        <div class="creator-note">
+          <strong>Designed and built by 何子文</strong>
+          <span>2026.07</span>
+        </div>
+      </aside>
+
+      <main id="top" class="content">
+        <section id="overview" class="hero brief-section">
+          <p class="section-index">00 / 概览</p>
+          <p class="hero-kicker">Mentat Quant</p>
+          <h1>从实验到复盘的 AI-Native 量化研究系统</h1>
+
+          <div class="overview-highlights" aria-label="概览要点">
+            <div class="highlight-list">
+              <article>
+                <h3>✦ AI-Native 协作</h3>
+                <p>
+                  为 Agent 提供系统对应的规范指引、操作工具与接口等，从实验方案构建、回测执行，到结果解读与复盘，
+                  接手结构化、可检查的执行和开发工作，提高策略开发迭代效率。
+                </p>
+              </article>
+              <article>
+                <h3>✦ 实验复盘循环</h3>
+                <p>
+                  结合分析工具，把研究结果拆到更具体的层面：收益归因、回撤与尾部风险、参数稳定性、过拟合风险……
+                  这些观察再形成下一轮假设实验、复盘或观察清单。
+                </p>
+              </article>
+              <article>
+                <h3>✦ 研究认知沉淀</h3>
+                <p>
+                  策略理解、失败样本、候选假设、工具缺口和后续想法，利用结构化知识库持续沉淀。
+                  它们不是一次对话里的临时结论，而是后续复盘和 Agent 协作时可以继续读取、校准和推进的研究上下文。
+                </p>
+              </article>
+              <article>
+                <h3>✦ 灵活研究视图</h3>
+                <p>
+                  在探索新指标、新模式或特殊市场窗口时，研究过程需要临时组合图表、表格、注释和数据快照。
+                  在 Agent 的协助下生成工作台临时观察，快速构建和验证；反复有用的观察方式再沉淀成通用分析接口或固定看板。
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="system" class="brief-section">
+          <p class="section-index">01 / 策略研究系统架构</p>
+          <h2>从数据、策略构建到复盘的完整研究链路。</h2>
+
+          <div class="tech-strip" aria-label="技术栈概览">
+            <article>
+              <span>Python</span>
+              <p>策略、回测与分析核心</p>
+            </article>
+            <article>
+              <span>pandas / NumPy</span>
+              <p>行情处理与指标计算</p>
+            </article>
+            <article>
+              <span>SQLite</span>
+              <p>本地数据与结果存储</p>
+            </article>
+            <article>
+              <span>Streamlit / Plotly</span>
+              <p>研究看板与交互诊断</p>
+            </article>
+          </div>
+
+          <div class="architecture-chapters" aria-label="策略研究系统架构">
+            <article id="data-state" class="arch-chapter">
+              <div class="chapter-side">
+                <span>01</span>
+                <h3>数据与状态</h3>
+                <p>统一事实来源，支撑回测、看板与复盘。</p>
+              </div>
+              <div class="chapter-body data-body">
+                <div class="data-flow-card">
+                  <div class="data-flow-copy">
+                    <strong>统一数据链路</strong>
+                    <p>
+                      常规行情以 <b>GM 掘金量化</b> 同步为主，AKShare 作为补充；标的数据与 benchmark 相关数据
+                      统一落到本地 SQLite，供回测、比较和看板读取。
+                    </p>
+                  </div>
+                  <div class="data-pipeline" aria-label="数据链路">
+                    <article>
+                      <span>Source</span>
+                      <h4>行情与基准</h4>
+                      <p>覆盖标的日线字段、成交量/成交额、复权相关信息与 benchmark 序列。</p>
+                    </article>
+                    <i aria-hidden="true"></i>
+                    <article>
+                      <span>Clean</span>
+                      <h4>清洗与标准化</h4>
+                      <p>统一字段、日期和数值类型，处理缺失价格、重复日期、成交量/成交额缺口与复权因子。</p>
+                    </article>
+                    <i aria-hidden="true"></i>
+                    <article>
+                      <span>Store</span>
+                      <h4>本地数据库</h4>
+                      <p>标准化后的数据进入 SQLite，形成可复现的研究数据源。</p>
+                    </article>
+                    <i aria-hidden="true"></i>
+                    <article>
+                      <span>Use</span>
+                      <h4>研究读取</h4>
+                      <p>策略回测、benchmark 对照、分析诊断和看板从同一数据源读取。</p>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article id="strategy-build" class="arch-chapter">
+              <div class="chapter-side">
+                <span>02</span>
+                <h3>策略构建</h3>
+                <p>把规则、参数和执行解耦。</p>
+              </div>
+              <div class="chapter-body strategy-body">
+                <div class="strategy-modules" aria-label="策略模块">
+                  <div class="module-intro">
+                    <strong>策略模块</strong>
+                    <p>
+                      策略类负责表达规则逻辑；基类把指标计算、日级决策、展示数据和离场水平拆成可被统一调用的入口。
+                    </p>
+                  </div>
+                  <div class="module-groups">
+                    <div class="module-group">
+                      <strong>策略决策接口</strong>
+                      <div class="module-row decision-row">
+                        <span><b>信号预计算</b><code>calculate_signals</code></span>
+                        <span><b>日级交易检查</b><code>run_daily_check</code></span>
+                        <span><b>参数定义</b><code>get_parameter_definitions</code></span>
+                      </div>
+                    </div>
+                    <div class="module-group">
+                      <strong>研究解释接口</strong>
+                      <div class="module-row explain-row">
+                        <span><b>持仓诊断</b><code>diagnostics</code></span>
+                        <span><b>看板状态</b><code>get_display_data</code></span>
+                        <span><b>图表指标</b><code>get_charting_indicators</code></span>
+                        <span><b>离场价位</b><code>get_exit_levels</code></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="strategy-reuse">
+                  <strong>策略配置与复用</strong>
+                  <p>
+                    策略逻辑通过统一接口注册，参数从 <b>config / manifest / batch config</b> 注入；同一个策略实现可以被
+                    单次实验、批量扫描、review profile 和 dashboard 复用。
+                  </p>
+                  <div class="reuse-flow">
+                    <span><b>策略类</b> 负责规则逻辑</span>
+                    <span><b>config / params</b> 负责实验变量</span>
+                    <span><b>registry / runner</b> 负责统一加载</span>
+                    <span><b>engine</b> 把策略信号放进执行环境</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article id="experiment-flow" class="arch-chapter">
+              <div class="chapter-side">
+                <span>03</span>
+                <h3>实验组织</h3>
+                <p>从研究问题到可运行实验。</p>
+              </div>
+              <div class="chapter-body experiment-body">
+                <div class="experiment-panel">
+                  <h4>单次实验</h4>
+                  <p>
+                    <code>manifest.json</code> 固化策略、参数、样本区间、输出目录和 result profile；
+                    README 保留研究问题与解释备注，status 记录执行命令和结果状态。
+                  </p>
+                </div>
+                <div class="experiment-panel batch-panel">
+                  <h4>批量实验</h4>
+                  <p>
+                    <code>param_grid</code>、common params、stop-loss variants 和 backtest periods 生成多组 run；
+                    batch runner 并行执行、记录失败并聚合 period summary。
+                  </p>
+                </div>
+                <div class="profile-panel" aria-label="result profile">
+                  <h4>按研究阶段控制输出粒度</h4>
+                  <div class="profile-list">
+                    <div><code>lean</code><span>只保留 summary 和 status，用于快速筛选。</span></div>
+                    <div><code>standard</code><span>增加 equity curve，用于常规研究。</span></div>
+                    <div><code>review</code><span>增加日级 strategy tape，用于周期复盘。</span></div>
+                    <div><code>debug</code><span>增加交易、持仓、排名等明细，用于深度审计。</span></div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article id="runtime" class="arch-chapter">
+              <div class="chapter-side">
+                <span>04</span>
+                <h3>回测执行</h3>
+                <p>把策略意图放进日级账户环境。</p>
+              </div>
+              <div class="chapter-body runtime-body">
+                <div class="runtime-flow">
+                  <div class="runtime-item">
+                    <span>01</span>
+                    <div>
+                      <strong>指标预计算与前视审计</strong>
+                      <p><code>core/engine.py</code> 先调用策略信号计算，再做未来函数列名审计和可选的前视重算检查。</p>
+                    </div>
+                  </div>
+                  <div class="runtime-item">
+                    <span>02</span>
+                    <div>
+                      <strong>日级数据隔离</strong>
+                      <p>每日循环只把 <b>当日及以前可见的数据</b> 传入策略，切出当天与前一交易日视图。</p>
+                    </div>
+                  </div>
+                  <div class="runtime-item">
+                    <span>03</span>
+                    <div>
+                      <strong>策略决策输出</strong>
+                      <p>策略通过 <code>run_daily_check</code> 返回卖出意图、买入意图和排名结果；此时还不是最终成交。</p>
+                    </div>
+                  </div>
+                  <div class="runtime-item runtime-with-guard">
+                    <span>04</span>
+                    <div>
+                      <strong>执行与组合状态更新</strong>
+                      <p>回测引擎先卖后买，更新现金、持仓、成本价、最高价，并把 SAR 等路径依赖状态从诊断结果同步回持仓表。</p>
+                    </div>
+                    <aside>
+                      <b>执行约束</b>
+                      <p><code>core/broker.py</code> 处理涨跌停、停牌/成交量、手续费和滑点；回测引擎处理 T+1、现金不足和持仓上限。</p>
+                    </aside>
+                  </div>
+                  <div class="runtime-item">
+                    <span>05</span>
+                    <div>
+                      <strong>日级记录</strong>
+                      <p>每个交易日落下净值、持仓、排名、订单、成交、拦截原因和策略状态，供结果产物继续加工。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article id="artifacts" class="arch-chapter">
+              <div class="chapter-side">
+                <span>05</span>
+                <h3>结果产物</h3>
+                <p>把一次运行转成可比较、可审计、可复盘的证据。</p>
+              </div>
+              <div class="chapter-body artifact-body">
+                <div class="artifact-layer">
+                  <h4>回测原始产物</h4>
+                  <div class="artifact-grid">
+                    <div>
+                      <strong>绩效摘要</strong>
+                      <p><code>summary.csv</code> 保留收益、风险、成本、交易统计和参数列，用于单次筛选和批量比较。</p>
+                    </div>
+                    <div>
+                      <strong>路径记录</strong>
+                      <p><code>equity_curve.csv</code> 用于查看净值路径、回撤区间和关键窗口。</p>
+                    </div>
+                    <div>
+                      <strong>执行明细</strong>
+                      <p><code>trade_log.csv</code>、<code>daily_holdings.csv</code>、<code>daily_rankings.csv</code> 支持检查交易、持仓和排序变化。</p>
+                    </div>
+                    <div>
+                      <strong>复现上下文</strong>
+                      <p><code>manifest.json</code>、<code>status.json</code>、<code>run.log</code> 和参数快照记录这次结果如何产生。</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="artifact-layer review-layer">
+                  <h4>可观察性与复盘封装</h4>
+                  <div class="artifact-review">
+                    <div>
+                      <strong>日级策略带</strong>
+                      <p><code>daily_strategy_tape.jsonl</code> 汇总组合、订单、成交、拦截、卖出原因和排名靠前标的。</p>
+                    </div>
+                    <div>
+                      <strong>Agent 摘要</strong>
+                      <p><code>observability/agent_summary.json</code> 提炼核心指标、风险标记、初步判断和下一步检查。</p>
+                    </div>
+                    <div>
+                      <strong>窗口复盘包</strong>
+                      <p><code>observability/review_packet.json</code> 按日期窗口组织日级策略带、市场上下文、卖出原因和回撤窗口。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article id="diagnostics" class="arch-chapter">
+              <div class="chapter-side">
+                <span>06</span>
+                <h3>分析诊断</h3>
+                <p>把结果拆成可继续追问的问题。</p>
+              </div>
+              <div class="chapter-body diagnostics-body">
+                <div class="diagnostic-question">
+                  <h4>结果是否值得继续看？</h4>
+                  <p>先判断一次运行的基本质量：收益、波动、Sharpe、Sortino、Calmar、胜率、盈亏比、交易次数，以及手续费和滑点成本。</p>
+                </div>
+                <div class="diagnostic-question">
+                  <h4>风险集中在哪里？</h4>
+                  <p>不只看最大回撤，还会看水下时长、Ulcer Index、偏度、CVaR、最差交易和具体回撤窗口，判断亏损来自常规波动还是少数危险阶段。</p>
+                </div>
+                <div class="diagnostic-question">
+                  <h4>收益是否只是暴露？</h4>
+                  <p>把策略与基准、等权池和动量暴露对照，结合 Alpha / Beta、R²、p 值、信息比率和因子回归，检查收益是否能被简单市场或风格暴露解释。</p>
+                </div>
+                <div class="diagnostic-question">
+                  <h4>表现是否稳定？</h4>
+                  <p>通过滚动 Sharpe、滚动 Alpha / Beta、滚动相关性、滚动胜率、月度收益矩阵和回撤序列，观察策略是否只依赖某一段行情。</p>
+                </div>
+                <div class="diagnostic-question">
+                  <h4>参数是否脆弱？</h4>
+                  <p>在批量实验里比较参数分布、分组 top runs、不同 period 的 winner 和参数均值，区分稳定区域与单点碰撞出来的结果。</p>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+        <section id="harness" class="brief-section">
+          <p class="section-index">02 / Agent Harness</p>
+          <h2>Agent Harness 让 Agent 以可检查的方式参与研究迭代。</h2>
+          <div class="text-block">
+            <p>
+              在这个系统里，Agent 的主要工作是承担研究过程中 <b>可结构化、可检查、可复用</b> 的部分：
+              理解项目边界，整理实验配置，读取运行结果，准备分析材料，把复盘中的问题重新落回下一轮实验。
+            </p>
+            <p>
+              Harness 的价值不在于替代研究判断，而是把边界、证据和产物组织清楚，让 Agent 能够进入真实研究链路，
+              同时保留人的方向选择和解释判断。
+            </p>
+          </div>
+
+          <div class="harness-foundations" aria-label="Agent Harness 基础能力">
+            <article class="foundation-card foundation-compact">
+              <span>基础 1</span>
+              <h3>项目 Contract：明确协作边界</h3>
+              <p>
+                <code>AGENT.md</code> 标记各层职责：<b>执行</b>、<b>分析</b>、<b>证据构建</b>、<b>临时工作台</b> 和
+                <b>固定界面</b> 分别由不同目录承载，避免一次任务在多个层级之间混写。
+              </p>
+            </article>
+
+            <article class="foundation-card foundation-compact">
+              <span>基础 2</span>
+              <h3>研究 Workflow：约束判断顺序</h3>
+              <p>
+                复盘和实验不是从收益曲线直接跳到结论，而是先定义 <b>问题与窗口</b>，再读取证据、做归因，
+                最后形成候选假设、下一轮实验或观察清单。
+              </p>
+            </article>
+
+            <article class="foundation-card foundation-wide">
+              <span>基础 3</span>
+              <h3>临时研究工作台：为一次研究问题组织证据</h3>
+              <p>
+                当一个研究问题还没有稳定到能进入固定看板时，Agent 可以先把这次讨论需要的窗口、指标、参数切片、图表和表格组织成
+                一个临时研究画布。它的作用是把相关材料摆在同一个界面里，先让人和 Agent 看同一组证据，再决定要补充分析、调整假设，还是沉淀成固定工具。
+              </p>
+              <div class="workbench-showcase">
+                <div class="workbench-process">
+                  <h4>Agent 如何使用</h4>
+                  <div class="workbench-steps">
+                    <div>
+                      <span>01</span>
+                      <strong>把问题落成观察任务</strong>
+                      <p>从一次回测、一个参数区域或一个异常窗口出发，先确定本轮要看的对象：时间范围、标的、指标、基准和对比口径。</p>
+                    </div>
+                    <div>
+                      <span>02</span>
+                      <strong>调用分析接口准备证据</strong>
+                      <p>读取批量实验、单次回测、净值曲线、持仓、交易、基准和参数结果，生成热力图、时间序列、表格和注释材料。</p>
+                    </div>
+                    <div>
+                      <span>03</span>
+                      <strong>组织成可打开的画布</strong>
+                      <p>Agent 将材料写成可打开的画布配置：每个小节对应一个观察问题，每个材料块承载一张图、一张表或一段解释，方便继续补充和替换。</p>
+                    </div>
+                    <div>
+                      <span>04</span>
+                      <strong>共读后继续迭代</strong>
+                      <p>人负责判断方向和取舍，Agent 继续补图、换指标、切参数维度；反复有用的观察方式再沉淀为通用分析接口或固定看板。</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="workbench-materials" aria-label="Workbench materials">
+                  <h4>画布承载的材料</h4>
+                  <div>
+                    <span><b>问题与口径</b> 记录本轮要回答什么、样本窗口是什么、指标如何解释。</span>
+                    <span><b>图表切片</b> 对净值、回撤、排名、参数稳定性和基准对照做可视化。</span>
+                    <span><b>表格快照</b> 固定候选节点、参数组合、交易记录、触发规则和关键统计。</span>
+                    <span><b>观察备注</b> 把 Agent 的初步解释、用户判断和下一步待补证据放在同一个上下文里。</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="workbench-screenshots">
+                <figure>
+                  <a class="screenshot-link" href="assets/screenshots/workbench_1.png">
+                    <img src="assets/screenshots/workbench_1.png" alt="Workbench 参数稳定性热力图截图" loading="lazy">
+                  </a>
+                  <figcaption>参数切片：在多组指标之间切换，观察稳定区域和风险暴露。</figcaption>
+                </figure>
+                <figure>
+                  <a class="screenshot-link" href="assets/screenshots/workbench_2.png">
+                    <img src="assets/screenshots/workbench_2.png" alt="Workbench 候选节点复盘截图" loading="lazy">
+                  </a>
+                  <figcaption>候选节点复盘：把排名、分数和同池标的路径放在同一窗口比较。</figcaption>
+                </figure>
+                <figure>
+                  <a class="screenshot-link" href="assets/screenshots/workbench_3.png">
+                    <img src="assets/screenshots/workbench_3.png" alt="Workbench 候选节点表与市场规则指标截图" loading="lazy">
+                  </a>
+                  <figcaption>证据表与市场指标：把触发规则、证据、问题和风险提示固定下来。</figcaption>
+                </figure>
+              </div>
+            </article>
+          </div>
+
+          <div id="research-loop" class="loop-block" aria-label="Agent 研究循环">
+            <h3>研究循环</h3>
+            <p class="loop-intro">
+              有了这些基础之后，Agent 可以接手研究里结构化的推进动作：把问题变成实验方案，
+              把运行结果封装成证据，再和人一起把复盘疑问带回下一轮验证。
+            </p>
+            <div class="loop-sequence">
+              <article class="loop-card">
+                <span>01</span>
+                <h3>形成研究问题</h3>
+                <p>问题可以来自人的观察、已有回测、复盘记录、参数结果或市场窗口。例如某段回撤异常、某个参数组表现不稳定、某类环境下策略反应迟滞。</p>
+              </article>
+              <article class="loop-card">
+                <span>02</span>
+                <h3>形成实验方案</h3>
+                <p>Agent 把问题落到策略版本、参数、样本窗口、result profile、输出目录和复现信息，确保这次实验以后还能比较和追溯。</p>
+              </article>
+              <article class="loop-card">
+                <span>03</span>
+                <h3>执行与封装结果</h3>
+                <p>Agent 通过统一入口运行单次或批量实验，并整理 summary、净值曲线、交易明细、持仓记录、日级策略带和复盘包。</p>
+              </article>
+              <article class="loop-card">
+                <span>04</span>
+                <h3>诊断与共读证据</h3>
+                <p>围绕具体问题下钻回撤、交易、持仓、基准、因子或参数敏感性；需要共同查看时，Agent 将材料组织成 Workbench canvas。</p>
+              </article>
+              <article class="loop-card">
+                <span>05</span>
+                <h3>沉淀到下一轮</h3>
+                <p>人和 Agent 一起区分预期内波动、策略缺陷、执行偏差和证据缺口。成熟问题回到实验方案，稳定认知再沉淀到 workflow、观察清单或策略记录。</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="dashboard" class="brief-section">
+          <p class="section-index">03 / 研究界面与复盘入口</p>
+          <h2>固定看板承接已经稳定下来的研究检查问题。</h2>
+          <div class="text-block">
+            <p>
+              临时研究工作台适合组织一次探索需要的证据；固定看板则面向反复出现的问题，
+              把批量实验筛选、单次回测下钻和策略日常观察放进稳定入口。
+            </p>
+            <p>
+              这里按研究推进顺序展示三个视图：先从一批回测里定位候选配置，再对单次回测做深度诊断；
+              策略进入观察后，再用策略状态界面连接实盘台账、当前信号和人工校准。
+            </p>
+          </div>
+
+          <div class="dashboard-stack">
+            <article class="dashboard-panel">
+              <div class="dashboard-panel-head">
+                <span>View 01 / 批量实验筛选</span>
+                <h3>回测总览</h3>
+                <p>
+                  批量运行完成后，这个视图把不同周期、参数组合、核心指标和候选选择放在一起，
+                  先从一批实验中定位值得继续看的候选结果。
+                </p>
+              </div>
+              <div class="dashboard-points">
+                <div>
+                  <strong>结果汇总与候选选择</strong>
+                  <p>通过汇总表查看收益、回撤、成本、滑点和风险指标，并选择候选配置进入单次回测诊断。</p>
+                </div>
+                <div>
+                  <strong>参数敏感性分析</strong>
+                  <p>选择参数与评价指标，用箱线图和筛选条件观察不同参数取值下的表现分布。</p>
+                </div>
+                <div>
+                  <strong>分组净值对比</strong>
+                  <p>按参数对所有结果分组，并查看每组表现靠前策略的净值曲线，避免只看单个最终排名。</p>
+                </div>
+              </div>
+              <div class="screenshot-grid">
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/1-1.png">
+                    <img src="assets/screenshots/1-1.png" alt="回测总览结果汇总与候选选择截图" loading="lazy">
+                  </a>
+                  <figcaption>结果汇总与候选选择</figcaption>
+                </figure>
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/1-2.png">
+                    <img src="assets/screenshots/1-2.png" alt="参数敏感性分析箱线图截图" loading="lazy">
+                  </a>
+                  <figcaption>参数敏感性分析</figcaption>
+                </figure>
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/1-3.png">
+                    <img src="assets/screenshots/1-3.png" alt="参数分组净值曲线对比截图" loading="lazy">
+                  </a>
+                  <figcaption>参数分组净值曲线</figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="dashboard-panel">
+              <div class="dashboard-panel-head">
+                <span>View 02 / 单次回测复盘</span>
+                <h3>深度诊断</h3>
+                <p>
+                  当某个配置进入候选后，深度诊断把一条汇总结果拆成净值、交易、持仓、滚动指标和风险窗口，
+                  用来判断它是否值得继续研究。
+                </p>
+              </div>
+              <div class="dashboard-points">
+                <div>
+                  <strong>收益演化</strong>
+                  <p>把策略净值、基准对照和月度收益矩阵放在同一视图里，先看收益路径是否有明显异常窗口。</p>
+                </div>
+                <div>
+                  <strong>稳定性</strong>
+                  <p>滚动 Sharpe、Alpha、相关性、胜率和 Beta 用于观察表现是否只依赖某一段市场窗口。</p>
+                </div>
+                <div>
+                  <strong>交易路径</strong>
+                  <p>交易日志和每日持仓记录保留进出场、成本、滑点、离场原因和持仓演化，支撑后续复盘。</p>
+                </div>
+              </div>
+              <div class="screenshot-grid">
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/2-1.png">
+                    <img src="assets/screenshots/2-1.png" alt="深度诊断收益演化与月度收益矩阵截图" loading="lazy">
+                  </a>
+                  <figcaption>收益演化与月度收益矩阵</figcaption>
+                </figure>
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/2-2.png">
+                    <img src="assets/screenshots/2-2.png" alt="深度诊断滚动稳定性指标截图" loading="lazy">
+                  </a>
+                  <figcaption>滚动稳定性</figcaption>
+                </figure>
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/2-3.png">
+                    <img src="assets/screenshots/2-3.png" alt="深度诊断交易日志和每日持仓截图" loading="lazy">
+                  </a>
+                  <figcaption>交易日志与每日持仓</figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="dashboard-panel">
+              <div class="dashboard-panel-head">
+                <span>View 03 / 日常观察</span>
+                <h3>策略状态</h3>
+                <p>
+                  策略进入观察后，这个视图把宏观状态、排名池、候选标的图表和数据刷新入口放在一起，
+                  服务日常检查与人工校准，而不是自动执行。
+                </p>
+              </div>
+              <div class="dashboard-points">
+                <div>
+                  <strong>市场状态</strong>
+                  <p>通过宏观趋势通道、Rank Score 分布、Score 偏度和 Alignment 观察当前市场是否支持策略暴露。</p>
+                </div>
+                <div>
+                  <strong>排名池</strong>
+                  <p>候选 ETF 以 Rank Score、Bias、Ready 状态和多指标图表呈现，便于人工检查信号质量。</p>
+                </div>
+                <div>
+                  <strong>观察控制</strong>
+                  <p>侧栏集中管理数据刷新、策略参数和图表窗口，让日常观察不需要在脚本和结果文件之间切换。</p>
+                </div>
+              </div>
+              <div class="screenshot-grid screenshot-grid-two">
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/3-1.png">
+                    <img src="assets/screenshots/3-1.png" alt="策略状态宏观市场状态截图" loading="lazy">
+                  </a>
+                  <figcaption>宏观市场状态与信号分布</figcaption>
+                </figure>
+                <figure class="screenshot-slot">
+                  <a class="screenshot-link" href="assets/screenshots/3-2.png">
+                    <img src="assets/screenshots/3-2.png" alt="策略状态排名池截图" loading="lazy">
+                  </a>
+                  <figcaption>排名池与候选标的图表</figcaption>
+                </figure>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="strategy" class="brief-section">
+          <p class="section-index">04 / 策略成果</p>
+          <div class="strategy-method">
+            <span>Research Method</span>
+            <h2>研究方法：规则参数化与稳健性验证</h2>
+            <p>
+              这部分研究采用规则型量化思路：从行业轮动和趋势延续的市场观察出发，把交易判断拆成可以执行、记录和复盘的规则。
+              策略中的窗口、阈值、确认天数、退出与防守条件都被参数化，再通过批量实验观察不同设置下的收益路径、回撤暴露和样本外延续性。
+            </p>
+            <p>
+              研究过程中更关注参数区域是否具有一致性：相邻设置下结果是否接近，收益是否依赖少数行情，
+              回撤是否集中在特定市场状态，样本外是否快速失效。这样的框架让“调参”变成可检查的实验过程，
+              也让我能持续把新的市场观察转化为下一轮规则迭代。
+            </p>
+          </div>
+          <h2>基于行业轮动的ETF趋势策略</h2>
+          <div class="strategy-showcase">
+            <div class="strategy-pillars" aria-label="策略思路拆解">
+              <article>
+                <span>01</span>
+                <h3>行业轮动基础</h3>
+                <p>市场资金和趋势并不会均匀分布在所有行业中，部分方向会在特定阶段形成相对优势；这种优势可能延续，也可能衰减、切换或失效。</p>
+              </article>
+              <article>
+                <span>02</span>
+                <h3>轮动排序</h3>
+                <p>对通过长期趋势过滤的 ETF 做相对强弱比较，并通过一套综合评分体系筛选候选方向，降低单纯追逐短期涨幅带来的噪声。</p>
+              </article>
+              <article>
+                <span>03</span>
+                <h3>入场确认</h3>
+                <p>候选标的不直接按排名买入，还会结合多头均线结构与超买风险控制，过滤趋势尚未形成或短期过热的信号。</p>
+              </article>
+              <article>
+                <span>04</span>
+                <h3>退出防守</h3>
+                <p>退出逻辑关注趋势衰竭、排名连续滑落和动态止损；止损包含成本兜底、阶梯止盈和 SAR 防守等机制。</p>
+              </article>
+            </div>
+
+            <div class="strategy-evaluation">
+              <div class="evaluation-copy">
+                <span>Evaluation</span>
+                <h3>评价口径</h3>
+                <p>
+                  策略评估拆分为样本内和样本外两段：<b>2018-2024</b> 作为样本内窗口，
+                  用于策略研究、参数稳定性和风险特征观察；<b>2025-2026.06</b> 作为样本外窗口，
+                  用于检验这些选择在未参与筛选数据上的延续性。两段都同时观察收益、回撤和相对基准。
+                </p>
+              </div>
+              <div class="evaluation-notes">
+                <div>
+                  <strong>样本内：研究与筛选</strong>
+                  <p>覆盖 2018-2024 的多轮市场状态，重点观察收益路径、回撤深度、参数邻域稳定性和相对基准表现。</p>
+                </div>
+                <div>
+                  <strong>样本外：持续检验</strong>
+                  <p>2025-2026.06 不参与该轮参数筛选，用于观察策略在后续市场中的表现；该阶段整体偏顺风，结论仍需要更长周期验证。</p>
+                </div>
+                <div>
+                  <strong>风险关注</strong>
+                  <p>策略收益弹性较强，但最大回撤仍偏高，后续重点放在回撤控制、震荡期防守和实盘记录标准化。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="performance-block">
+              <div class="performance-head">
+                <span>Backtest</span>
+                <h3>策略表现</h3>
+                <p>
+                  以下为当前策略原型的回测与样本外观察结果，所选配置来自参数稳定性分析中表现较均衡的区域。
+                  统计已包含交易成本、滑点和 T+1 约束，
+                  并与同池等权 ETF 组合及沪深300对照。
+                </p>
+              </div>
+              <div class="metric-table" role="table" aria-label="策略回测样本内和样本外观察指标">
+                <div class="metric-row metric-header" role="row">
+                  <span role="columnheader">窗口</span>
+                  <span role="columnheader">累计收益</span>
+                  <span role="columnheader">年化收益</span>
+                  <span role="columnheader">最大回撤</span>
+                  <span role="columnheader">Sharpe</span>
+                  <span role="columnheader">Calmar</span>
+                </div>
+                <div class="metric-row" role="row">
+                  <span role="cell"><b>2018-2024</b><small>样本内研究</small></span>
+                  <span role="cell">+258.0%</span>
+                  <span role="cell">20.0%</span>
+                  <span role="cell">-27.3%</span>
+                  <span role="cell">0.74</span>
+                  <span role="cell">0.73</span>
+                </div>
+                <div class="metric-row" role="row">
+                  <span role="cell"><b>2025-2026.06</b><small>样本外观察</small></span>
+                  <span role="cell">+218.0%</span>
+                  <span role="cell">115.3%</span>
+                  <span role="cell">-30.7%</span>
+                  <span role="cell">2.53</span>
+                  <span role="cell">3.76</span>
+                </div>
+              </div>
+              <p class="metric-caveat">
+                2025-2026.06 的样本外窗口处在较友好的市场阶段，年化收益不能简单外推；这组结果更适合作为持续跟踪起点，
+                尤其需要继续观察回撤和风格切换期表现。
+              </p>
+              <div class="metric-detail-grid" aria-label="策略尾部风险与交易质量">
+                <article class="metric-detail-card">
+                  <h4>尾部风险</h4>
+                  <div class="metric-detail-windows">
+                    <div class="metric-detail-window">
+                      <strong>2018-2024</strong>
+                      <dl>
+                        <div><dt>Sortino</dt><dd>0.66</dd></div>
+                        <div><dt>Ulcer Index</dt><dd>10.1</dd></div>
+                        <div><dt>偏度</dt><dd>0.32</dd></div>
+                        <div><dt>CVaR 95%</dt><dd>-4.0%</dd></div>
+                        <div><dt>最大水下</dt><dd>499天</dd></div>
+                      </dl>
+                    </div>
+                    <div class="metric-detail-window">
+                      <strong>2025-2026.06</strong>
+                      <dl>
+                        <div><dt>Sortino</dt><dd>2.74</dd></div>
+                        <div><dt>Ulcer Index</dt><dd>10.5</dd></div>
+                        <div><dt>偏度</dt><dd>0.01</dd></div>
+                        <div><dt>CVaR 95%</dt><dd>-6.1%</dd></div>
+                        <div><dt>最大水下</dt><dd>119天</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                </article>
+                <article class="metric-detail-card">
+                  <h4>交易质量</h4>
+                  <div class="metric-detail-windows">
+                    <div class="metric-detail-window">
+                      <strong>2018-2024</strong>
+                      <dl>
+                        <div><dt>交易次数</dt><dd>289</dd></div>
+                        <div><dt>胜率</dt><dd>48.8%</dd></div>
+                        <div><dt>盈亏比</dt><dd>1.65</dd></div>
+                      </dl>
+                    </div>
+                    <div class="metric-detail-window">
+                      <strong>2025-2026.06</strong>
+                      <dl>
+                        <div><dt>交易次数</dt><dd>78</dd></div>
+                        <div><dt>胜率</dt><dd>47.4%</dd></div>
+                        <div><dt>盈亏比</dt><dd>2.16</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="benchmark-table" role="table" aria-label="策略与基准累计收益对照">
+                <div class="benchmark-row benchmark-header" role="row">
+                  <span role="columnheader">窗口</span>
+                  <span role="columnheader">策略</span>
+                  <span role="columnheader">同池等权</span>
+                  <span role="columnheader">沪深300</span>
+                  <span role="columnheader">相对等权</span>
+                </div>
+                <div class="benchmark-row" role="row">
+                  <span role="cell">2018-2024</span>
+                  <span role="cell">+258.2%</span>
+                  <span role="cell">+39.0%</span>
+                  <span role="cell">-3.7%</span>
+                  <span role="cell">+219.2pct</span>
+                </div>
+                <div class="benchmark-row" role="row">
+                  <span role="cell">2025-2026.06</span>
+                  <span role="cell">+218.1%</span>
+                  <span role="cell">+42.4%</span>
+                  <span role="cell">+25.4%</span>
+                  <span role="cell">+175.7pct</span>
+                </div>
+              </div>
+              <div class="strategy-risk-note">
+                <strong>当前主要问题</strong>
+                <p>
+                  回撤控制还不够理想：样本内最大回撤约 -27%，样本外窗口也出现约 -31% 的回撤。
+                  后续优化会重点看防守触发、仓位管理、震荡期过滤和更长时间的样本外跟踪。
+                </p>
+              </div>
+              <div class="strategy-curves">
+                <figure class="strategy-curve">
+                  <a class="screenshot-link" href="assets/strategy/strategy-equity-is.svg">
+                    <img src="assets/strategy/strategy-equity-is.svg" alt="样本内策略净值、同池等权和沪深300对比曲线" loading="lazy">
+                  </a>
+                  <figcaption>样本内净值曲线：策略 / 同池等权 / 沪深300</figcaption>
+                </figure>
+                <figure class="strategy-curve">
+                  <a class="screenshot-link" href="assets/strategy/strategy-equity-oos.svg">
+                    <img src="assets/strategy/strategy-equity-oos.svg" alt="样本外观察策略净值、同池等权和沪深300对比曲线" loading="lazy">
+                  </a>
+                  <figcaption>样本外观察曲线：策略 / 同池等权 / 沪深300</figcaption>
+                </figure>
+              </div>
+            </div>
+
+            <div class="live-record-block">
+              <div class="live-record-copy">
+                <span>Live Record</span>
+                <h3>市场经验与实盘验证</h3>
+                <p>
+                  从 2024 年 10 月开始入场股市；2025 年 6 月因兴趣开始探索量化，
+                  后以约 20 万元资金规模进行实盘对比验证，目前仍在跟踪中。记录分为东方财富和华泰证券两个账户窗口（中途更换）。
+                </p>
+              </div>
+              <div class="live-shot-grid">
+                <figure class="live-shot">
+                  <a class="screenshot-link" href="assets/screenshots/202410-202603.png">
+                    <img src="assets/screenshots/202410-202603.png" alt="东方财富账户收益曲线截图" loading="lazy">
+                  </a>
+                  <figcaption>东方财富账户记录：2024.10 - 2026.03</figcaption>
+                </figure>
+                <figure class="live-shot">
+                  <a class="screenshot-link" href="assets/screenshots/202603-06.png">
+                    <img src="assets/screenshots/202603-06.png" alt="华泰证券账户收益曲线截图" loading="lazy">
+                  </a>
+                  <figcaption>华泰证券账户记录：2026.03 - 2026.06</figcaption>
+                </figure>
+              </div>
+            </div>
+            <div class="market-motto">敬畏市场，拥抱不确定，持续学习和思考。</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="image-lightbox" class="image-lightbox" aria-label="截图预览">
+      <button class="lightbox-close" type="button" aria-label="关闭预览">关闭</button>
+      <button class="lightbox-nav lightbox-prev" type="button" aria-label="上一张截图">‹</button>
+      <button class="lightbox-nav lightbox-next" type="button" aria-label="下一张截图">›</button>
+      <figure>
+        <img alt="">
+        <figcaption></figcaption>
+      </figure>
+    </dialog>
+
+    <script src="script.js"></script>
+  </body>
+</html>
